@@ -1,7 +1,7 @@
 #!/bin/zsh
 # -*- coding: utf-8; tab-width: 2; indent-tabs-mode: nil; sh-basic-offset: 2; sh-indentation: 2; -*- vim:fenc=utf-8:et:sw=2:ts=2:sts=2
 #
-# Copyright (C) 2014, Enrico M. Crisostomo
+# Copyright (C) 2015, Enrico M. Crisostomo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
