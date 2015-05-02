@@ -86,7 +86,7 @@ shift $((OPTIND-1))
   exit 2
 }
 
-# Get the full list of backups from tmuil
+# Get the full list of backups from tmutil
 TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups)}" )
 
 # We are sorting the output of tmutil listbackups because its documentation
