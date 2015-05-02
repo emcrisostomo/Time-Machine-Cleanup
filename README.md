@@ -18,8 +18,8 @@ $ tm-cleanup.sh [-d days] [-h]
 
 where
 
-  * `days` is an unsigned positive integer number.  The accepted format is
-    `[0-9]+`.
+  * `days` is an unsigned positive integer number (the accepted format is
+    `[0-9]+`).
 
   * `-h` prints the help message and exits the program.
 
