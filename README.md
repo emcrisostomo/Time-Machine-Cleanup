@@ -26,6 +26,29 @@ where
 This scripts *never* deletes the latest snapshot, no matter the value of the
 `days` option.
 
+Installation
+------------
+
+The scripts require no installation: they can be downloaded and run from any
+location.
+However, this repository provides an installation script that creates
+symbolic links to `/usr/local/bin`, a directory which is included by default
+in the `${PATH}` of any OS X user.
+Installing the symbolic links has the advantage of always providing the current
+version of the scripts on the `${PATH}` when the local repository is updated.
+
+To install the symbolic links:
+
+```
+$ sudo make install
+```
+
+To uninstall the symbolic links:
+
+```
+$ sudo make uninstal
+```
+
 Requirements
 ------------
 
