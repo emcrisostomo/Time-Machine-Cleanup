@@ -49,6 +49,12 @@ To uninstall the symbolic links:
 $ sudo make uninstal
 ```
 
+To make the changes visibile in an existing ZSH session, execute this command:
+
+```
+$ rehash
+```
+
 Requirements
 ------------
 
