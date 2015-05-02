@@ -46,7 +46,7 @@ $ sudo make install
 To uninstall the symbolic links:
 
 ```
-$ sudo make uninstal
+$ sudo make uninstall
 ```
 
 To make the changes visibile in an existing ZSH session, execute this command:
