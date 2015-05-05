@@ -45,6 +45,7 @@ print_usage()
   print -- "Options:"
   print -- " -d         Number of days to keep."
   print -- " -h         Show this help."
+  print -- " -x         Perform a dry run."
   print
   print -- "Report bugs to <enrico.m.crisostomo@gmail.com>."
 }
@@ -52,8 +53,10 @@ print_usage()
 # Define an integer variable to store the deletion threshold.
 # Default: 30 days
 typeset -i DAYS_TO_KEEP=30
+DRY_RUN=0
+FORCE_EXECUTION=0
 
-while getopts ":hd:" opt
+while getopts ":hd:fx" opt
 do
   case $opt in
     h)
@@ -62,6 +65,12 @@ do
       ;;
     d)
       DAYS_TO_KEEP=${OPTARG}
+      ;;
+    f)
+      FORCE_EXECUTION=1
+      ;;
+    x)
+      DRY_RUN=1
       ;;
     \?)
       >&2 print -- Invalid option -${OPTARG}.
@@ -85,6 +94,13 @@ shift $((OPTIND-1))
   >&2 print -- The number of days to keep must be positive.
   exit 2
 }
+
+# Check if a backup is running and if it is, skip execution
+if (( ${FORCE_EXECUTION} == 0 )) && tmutil status | grep Running | grep -q 1
+then
+  >&2 print -- A Time Machine backup is being performed. Skip execution.
+  exit 4
+fi
 
 # Get the full list of backups from tmutil
 TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups)}" )
@@ -119,7 +135,11 @@ do
     if [[ ${i} != ${TM_BACKUPS_SORTED[-1]} ]]
     then
       print -- ${TM_DATE} will be deleted.
-      tmutil delete ${i}
+
+      if (( ${DRY_RUN} == 0 ))
+      then
+        tmutil delete ${i}
+      fi
     else
       print -- ${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot.
     fi
