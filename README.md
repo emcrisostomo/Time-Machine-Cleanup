@@ -13,15 +13,20 @@ threshold is 30 days.
 The syntax of `tm-cleanup.sh` is the following:
 
 ```
-$ tm-cleanup.sh [-d days] [-h]
+$ tm-cleanup.sh [-d days] [-f] [-h] [-x]
 ```
 
 where
 
-  * `days` is an unsigned positive integer number (the accepted format is
-    `[0-9]+`).
-
+  * By default backups older than 30 days will be deleted.  If `-d` is
+    speficied, backups older than the specified number of days will be deleted.
+    `days` is an unsigned positive integer number.
+  * By default, `tm-cleanup.sh` exits and prints an error message if a Time
+    Machine backup is currently in progress.  `-f` forces the backup deletion
+    concurrently.
   * `-h` prints the help message and exits the program.
+  * `-x` performs a dry clean: it will print the list of operations that will
+    be performed without actually performing any.
 
 This scripts *never* deletes the latest snapshot, no matter the value of the
 `days` option.
