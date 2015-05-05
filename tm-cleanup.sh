@@ -44,6 +44,7 @@ print_usage()
   print
   print -- "Options:"
   print -- " -d         Number of days to keep."
+  print -- " -f         Force execution even if a Time Backup is in progress."
   print -- " -h         Show this help."
   print -- " -x         Perform a dry run."
   print
@@ -95,7 +96,8 @@ shift $((OPTIND-1))
   exit 2
 }
 
-# Check if a backup is running and if it is, skip execution
+# Check if a backup is running and if it is, skip execution.
+# This check relies on the undocumented tmutil `status' verb.
 if (( ${FORCE_EXECUTION} == 0 )) && tmutil status | grep Running | grep -q 1
 then
   >&2 print -- A Time Machine backup is being performed. Skip execution.
