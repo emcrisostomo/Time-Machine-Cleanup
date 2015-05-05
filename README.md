@@ -13,7 +13,8 @@ threshold is 30 days.
 The syntax of `tm-cleanup.sh` is the following:
 
 ```
-$ tm-cleanup.sh [-d days] [-f] [-h] [-x]
+$ tm-cleanup.sh [-d days] [-f] [-x]
+$ tm-cleanup.sh [-h]
 ```
 
 where
