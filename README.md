@@ -28,7 +28,7 @@ where
   * `-x` performs a dry clean: it will print the list of operations that will
     be performed without actually performing any.
 
-This scripts *never* deletes the latest snapshot, no matter the value of the
+This script *never* deletes the latest snapshot, no matter the value of the
 `days` option.
 
 Installation
