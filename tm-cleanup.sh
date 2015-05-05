@@ -25,11 +25,6 @@ set -o nounset
 
 PROGNAME=$0
 
-(( ${EUID} == 0 )) || {
-  >&2 print -- This command must be executed with super user privileges.
-  exit 1
-}
-
 command -v tmutil > /dev/null 2>&1 || {
   >&2 print -- Cannot find tmutil.
   exit 1
@@ -95,6 +90,11 @@ shift $((OPTIND-1))
 (( ${DAYS_TO_KEEP} > 0 )) || {
   >&2 print -- The number of days to keep must be positive.
   exit 2
+}
+
+(( ${EUID} == 0 )) || {
+  >&2 print -- This command must be executed with super user privileges.
+  exit 1
 }
 
 # Check if a backup is running and if it is, skip execution.
