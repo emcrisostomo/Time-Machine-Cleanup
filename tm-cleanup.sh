@@ -40,11 +40,12 @@ print_usage()
   print -- "${PROGNAME}"
   print
   print -- "Usage:"
-  print -- "${PROGNAME} [-d days]"
+  print -- "${PROGNAME} [-d days] [-f] [-x]"
+  print -- "${PROGNAME} [-h]"
   print
   print -- "Options:"
   print -- " -d         Number of days to keep."
-  print -- " -f         Force execution even if a Time Backup is in progress."
+  print -- " -f         Force execution even if a Time Machine backup is in progress."
   print -- " -h         Show this help."
   print -- " -x         Perform a dry run."
   print
