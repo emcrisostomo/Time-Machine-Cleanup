@@ -61,7 +61,8 @@ FORCE_EXECUTION=0
 #   - 1: number of backups
 MODE_DAYS=0
 MODE_BACKUPS=1
-typeset -i EXECUTION_MODE=-1
+MODE_UNKNOWN=-1
+typeset -i EXECUTION_MODE=${MODE_UNKNOWN}
 typeset -i ARGS_PROCESSED=0
 
 parse_opts()
@@ -197,6 +198,12 @@ then
   exit 4
 fi
 
+if (( ${EXECUTION_MODE} == ${MODE_UNKNOWN} ))
+then
+  >&2 print -- No mode specified. Exiting.
+  exit 2
+fi
+
 # Get the full list of backups from tmutil
 TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups)}" )
 
@@ -210,5 +217,9 @@ case ${EXECUTION_MODE} in
     ;;
   ${MODE_BACKUPS})
     process_by_backups
+    ;;
+  *)
+    >&2 print -- Unexpected mode. Exiting.
+    exit 4
     ;;
 esac
