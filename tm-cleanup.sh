@@ -24,7 +24,7 @@ set -o errexit
 set -o nounset
 
 PROGNAME=$0
-VERSION=1.1.0
+VERSION=1.2.0
 
 command -v tmutil > /dev/null 2>&1 || {
   >&2 print -- Cannot find tmutil.
