@@ -7,21 +7,30 @@ tm-cleanup.sh
 -------------
 
 `tm-cleanup.sh` is a ZSH script that lists the completed Time Machine snapshots
-and deletes those that are oldest that a specified number of days.  The default
-threshold is 30 days.
+and deletes those that satisfy the specified criteria.  Two types of deletion
+criteria exist:
+
+  * By date: snapshots that are older than a specified number of days are
+    deleted.  The default threshold is 30 days.
+
+  * By number: a maximum number of snapshots is retained and oldest snapshots
+  are deleted.
+
+Only one deletion criteria can be specified.
 
 The syntax of `tm-cleanup.sh` is the following:
 
 ```
-$ tm-cleanup.sh [-d days] [-f] [-x]
+$ tm-cleanup.sh (-d days | -n number) [-f] [-x]
 $ tm-cleanup.sh [-h]
 ```
 
 where
 
-  * By default backups older than 30 days will be deleted.  If `-d` is
-    speficied, backups older than the specified number of days will be deleted.
-    `days` is an unsigned positive integer number.
+  * If `-d` is specified, backups older than the specified number of days will
+    be deleted.  `days` is a positive integer number.
+  * `-n` specifies the number of backups to retain.  `number` is a positive
+    integer number.
   * By default, `tm-cleanup.sh` exits and prints an error message if a Time
     Machine backup is currently in progress.  `-f` forces the backup deletion
     concurrently.
@@ -30,18 +39,17 @@ where
     be performed without actually performing any.
 
 This script *never* deletes the latest snapshot, no matter the value of the
-`days` option.
+`-d` or `-n` options.
 
 Installation
 ------------
 
 The scripts require no installation: they can be downloaded and run from any
-location.
-However, this repository provides an installation script that creates
-symbolic links to `/usr/local/bin`, a directory which is included by default
-in the `${PATH}` of any OS X user.
-Installing the symbolic links has the advantage of always providing the current
-version of the scripts on the `${PATH}` when the local repository is updated.
+location.  However, this repository provides an installation script that creates
+symbolic links to `/usr/local/bin`, a directory which is included by default in
+the `${PATH}` of any OS X user.  Installing the symbolic links has the advantage
+of always providing the current version of the scripts on the `${PATH}` when the
+local repository is updated.
 
 To install the symbolic links:
 
@@ -74,7 +82,7 @@ Bug reports can be sent directly to the authors.
 
 -----
 
-Copyright (C) 2015 Enrico M. Crisostomo
+Copyright (C) 2016 Enrico M. Crisostomo
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

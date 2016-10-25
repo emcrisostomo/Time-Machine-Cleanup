@@ -1,7 +1,7 @@
 #!/bin/zsh
 # -*- coding: utf-8; tab-width: 2; indent-tabs-mode: nil; sh-basic-offset: 2; sh-indentation: 2; -*- vim:fenc=utf-8:et:sw=2:ts=2:sts=2
 #
-# Copyright (C) 2015, Enrico M. Crisostomo
+# Copyright (C) 2016, Enrico M. Crisostomo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ set -o errexit
 set -o nounset
 
 PROGNAME=$0
-VERSION=1.1.0
+VERSION=1.2.0
 
 command -v tmutil > /dev/null 2>&1 || {
   >&2 print -- Cannot find tmutil.
@@ -36,7 +36,7 @@ print_usage()
   print -- "${PROGNAME} ${VERSION}"
   print
   print -- "Usage:"
-  print -- "${PROGNAME} [-d days] [-n number] [-f] [-x]"
+  print -- "${PROGNAME} (-d days | -n number) [-f] [-x]"
   print -- "${PROGNAME} [-h]"
   print
   print -- "Options:"
@@ -59,9 +59,10 @@ FORCE_EXECUTION=0
 # Execution modes
 #   - 0: number of days
 #   - 1: number of backups
-MODE_DAYS=0
-MODE_BACKUPS=1
-typeset -i EXECUTION_MODE=-1
+MODE_DAYS=1
+MODE_BACKUPS=2
+MODE_UNKNOWN=0
+typeset -i EXECUTION_MODE=${MODE_UNKNOWN}
 typeset -i ARGS_PROCESSED=0
 
 parse_opts()
@@ -75,14 +76,14 @@ parse_opts()
         ;;
       d)
         DAYS_TO_KEEP=${OPTARG}
-        EXECUTION_MODE=${MODE_DAYS}
+        EXECUTION_MODE=$((MODE_DAYS | EXECUTION_MODE))
         ;;
       f)
         FORCE_EXECUTION=1
         ;;
       n)
         NUMBER_TO_KEEP=${OPTARG}
-        EXECUTION_MODE=${MODE_BACKUPS}
+        EXECUTION_MODE=$((MODE_BACKUPS | EXECUTION_MODE))
         ;;
       x)
         DRY_RUN=1
@@ -197,6 +198,18 @@ then
   exit 4
 fi
 
+if (( ${EXECUTION_MODE} == ${MODE_UNKNOWN} ))
+then
+  >&2 print -- No mode specified. Exiting.
+  exit 2
+fi
+
+if (( EXECUTION_MODE & (EXECUTION_MODE - 1) ))
+then
+  >&2 print -- Only one mode can be specified. Exiting.
+  exit 2
+fi
+
 # Get the full list of backups from tmutil
 TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups)}" )
 
@@ -210,5 +223,9 @@ case ${EXECUTION_MODE} in
     ;;
   ${MODE_BACKUPS})
     process_by_backups
+    ;;
+  *)
+    >&2 print -- Unexpected mode. Exiting.
+    exit 4
     ;;
 esac
