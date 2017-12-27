@@ -46,6 +46,7 @@ typeset -i TM_BACKUPS_LOADED=0
 typeset -a TM_DIALOG_OPTS=( --backtitle "Time Machine Cleanup" )
 typeset -a TM_DIALOG_CMD=( dialog ${TM_DIALOG_OPTS} )
 typeset -a TM_OPERATIONS=( D "Delete backups" L "List backups" E "Exit" )
+typeset -A TM_OPERATION_NAMES=( D "Delete backups" L "List backups" E "Exit" )
 
 typeset -ri DIALOG_OK=0
 typeset -ri DIALOG_CANCEL=1
@@ -262,7 +263,7 @@ tm_open_operation()
 {
   case $1 in
     D)
-      ${TM_DIALOG_CMD} --msgbox "To do" 0 0
+      ${TM_DIALOG_CMD} --title ${TM_OPERATION_NAMES[$1]} --msgbox "To do" 0 0
       ;;
     E)
       exit 0
@@ -272,9 +273,9 @@ tm_open_operation()
 
       if (( TM_LOAD_BACKUPS == 0 ))
       then
-        ${TM_DIALOG_CMD} --msgbox "${TM_BACKUPS}" 0 0
+        ${TM_DIALOG_CMD} --title ${TM_OPERATION_NAMES[$1]} --msgbox "${TM_BACKUPS}" 0 0
       else
-        ${TM_DIALOG_CMD} --msgbox "$(cat ${TM_ERR_TEMP_FILE})" 0 0
+        ${TM_DIALOG_CMD} --title ${TM_OPERATION_NAMES[$1]} --msgbox "$(cat ${TM_ERR_TEMP_FILE})" 0 0
       fi
       ;;
     *)
