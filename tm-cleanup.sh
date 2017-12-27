@@ -177,38 +177,43 @@ process_by_backups()
   done
 }
 
+tm_health_checks()
+{
+  (( $# == 0 )) || {
+    >&2 print -- No arguments are allowed.
+    exit 2
+  }
+
+  (( ${EUID} == 0 )) || {
+    >&2 print -- This command must be executed with super user privileges.
+    exit 1
+  }
+
+  # Check if a backup is running and if it is, skip execution.
+  # This check relies on the undocumented tmutil `status' verb.
+  if (( ${FORCE_EXECUTION} == 0 )) && tmutil status | grep Running | grep -q 1
+  then
+    >&2 print -- A Time Machine backup is being performed. Skip execution.
+    exit 4
+  fi
+
+  if (( ${EXECUTION_MODE} == ${MODE_UNKNOWN} ))
+  then
+    >&2 print -- No mode specified. Exiting.
+    exit 2
+  fi
+
+  if (( EXECUTION_MODE & (EXECUTION_MODE - 1) ))
+  then
+    >&2 print -- Only one mode can be specified. Exiting.
+    exit 2
+  fi
+}
+
 # Main
 parse_opts $* && shift ${ARGS_PROCESSED}
 
-(( $# == 0 )) || {
-  >&2 print -- No arguments are allowed.
-  exit 2
-}
-
-(( ${EUID} == 0 )) || {
-  >&2 print -- This command must be executed with super user privileges.
-  exit 1
-}
-
-# Check if a backup is running and if it is, skip execution.
-# This check relies on the undocumented tmutil `status' verb.
-if (( ${FORCE_EXECUTION} == 0 )) && tmutil status | grep Running | grep -q 1
-then
-  >&2 print -- A Time Machine backup is being performed. Skip execution.
-  exit 4
-fi
-
-if (( ${EXECUTION_MODE} == ${MODE_UNKNOWN} ))
-then
-  >&2 print -- No mode specified. Exiting.
-  exit 2
-fi
-
-if (( EXECUTION_MODE & (EXECUTION_MODE - 1) ))
-then
-  >&2 print -- Only one mode can be specified. Exiting.
-  exit 2
-fi
+tm_health_checks
 
 # Get the full list of backups from tmutil
 TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups)}" )
