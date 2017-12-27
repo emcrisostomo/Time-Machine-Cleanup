@@ -1,7 +1,7 @@
 #!/bin/zsh
 # -*- coding: utf-8; tab-width: 2; indent-tabs-mode: nil; sh-basic-offset: 2; sh-indentation: 2; -*- vim:fenc=utf-8:et:sw=2:ts=2:sts=2
 #
-# Copyright (C) 2016, Enrico M. Crisostomo
+# Copyright (C) 2016-2017 Enrico M. Crisostomo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -89,11 +89,11 @@ parse_opts()
         DRY_RUN=1
         ;;
       \?)
-        >&2 print -- Invalid option -${OPTARG}.
+        >&2 print -- "Invalid option -${OPTARG}."
         exit 1
         ;;
       :)
-        >&2 print -- Missing argument to -${OPTARG}.
+        >&2 print -- "Missing argument to -${OPTARG}."
         exit 1
         ;;
     esac
@@ -105,7 +105,7 @@ parse_opts()
 process_by_days()
 {
   (( ${DAYS_TO_KEEP} > 0 )) || {
-    >&2 print -- The number of days to keep must be positive.
+    >&2 print -- "The number of days to keep must be positive."
     exit 2
   }
 
@@ -120,8 +120,8 @@ process_by_days()
 
     if [[ ! ${TM_DATE} =~ "^[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}$" ]]
     then
-      >&2 print -- Unexpected snapshot name: ${TM_DATE}.
-      >&2 print -- Aborting.
+      >&2 print -- "Unexpected snapshot name: ${TM_DATE}."
+      >&2 print -- "Aborting."
       exit 8
     fi
   done
@@ -134,14 +134,14 @@ process_by_days()
     then
       if [[ ${i} != ${TM_BACKUPS_SORTED[-1]} ]]
       then
-        print -- ${TM_DATE} will be deleted.
+        print -- "${TM_DATE} will be deleted."
 
         if (( ${DRY_RUN} == 0 ))
         then
           tmutil delete ${i}
         fi
       else
-        print -- ${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot.
+        print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
       fi
     fi
   done
@@ -150,7 +150,7 @@ process_by_days()
 process_by_backups()
 {
   (( ${NUMBER_TO_KEEP} > 0 )) || {
-    >&2 print -- The number of backups to keep must be positive.
+    >&2 print -- "The number of backups to keep must be positive."
     exit 2
   }
 
@@ -165,14 +165,14 @@ process_by_backups()
   do
     if [[ ${i} != ${TM_BACKUPS_SORTED[-1]} ]]
     then
-      print -- ${TM_BACKUPS_SORTED[i]:t} will be deleted.
+      print -- "${TM_BACKUPS_SORTED[i]:t} will be deleted."
 
       if (( ${DRY_RUN} == 0 ))
       then
         tmutil delete ${TM_BACKUPS_SORTED[i]}
       fi
     else
-      print -- ${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot.
+      print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
     fi
   done
 }
@@ -180,12 +180,12 @@ process_by_backups()
 tm_health_checks()
 {
   (( $# == 0 )) || {
-    >&2 print -- No arguments are allowed.
+    >&2 print -- "No arguments are allowed."
     exit 2
   }
 
   (( ${EUID} == 0 )) || {
-    >&2 print -- This command must be executed with super user privileges.
+    >&2 print -- "This command must be executed with super user privileges."
     exit 1
   }
 
@@ -193,19 +193,19 @@ tm_health_checks()
   # This check relies on the undocumented tmutil `status' verb.
   if (( ${FORCE_EXECUTION} == 0 )) && tmutil status | grep Running | grep -q 1
   then
-    >&2 print -- A Time Machine backup is being performed. Skip execution.
+    >&2 print -- "A Time Machine backup is being performed.  Skip execution."
     exit 4
   fi
 
   if (( ${EXECUTION_MODE} == ${MODE_UNKNOWN} ))
   then
-    >&2 print -- No mode specified. Exiting.
+    >&2 print -- "No mode specified.  Exiting."
     exit 2
   fi
 
   if (( EXECUTION_MODE & (EXECUTION_MODE - 1) ))
   then
-    >&2 print -- Only one mode can be specified. Exiting.
+    >&2 print -- "Only one mode can be specified.  Exiting."
     exit 2
   fi
 }
@@ -230,7 +230,7 @@ case ${EXECUTION_MODE} in
     process_by_backups
     ;;
   *)
-    >&2 print -- Unexpected mode.  Exiting.
+    >&2 print -- "Unexpected mode.  Exiting."
     exit 4
     ;;
 esac
