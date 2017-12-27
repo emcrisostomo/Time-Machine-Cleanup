@@ -59,9 +59,9 @@ typeset -i FORCE_EXECUTION=0
 # Execution modes
 #   - 0: number of days
 #   - 1: number of backups
-MODE_DAYS=1
-MODE_BACKUPS=2
-MODE_UNKNOWN=0
+typeset -ri MODE_DAYS=1
+typeset -ri MODE_BACKUPS=2
+typeset -ri MODE_UNKNOWN=0
 typeset -i EXECUTION_MODE=${MODE_UNKNOWN}
 typeset -i ARGS_PROCESSED=0
 
