@@ -54,8 +54,8 @@ print_usage()
 # Default: 7 backups
 typeset -i DAYS_TO_KEEP=30
 typeset -i NUMBER_TO_KEEP=7
-DRY_RUN=0
-FORCE_EXECUTION=0
+typeset -i DRY_RUN=0
+typeset -i FORCE_EXECUTION=0
 # Execution modes
 #   - 0: number of days
 #   - 1: number of backups
@@ -225,7 +225,7 @@ case ${EXECUTION_MODE} in
     process_by_backups
     ;;
   *)
-    >&2 print -- Unexpected mode. Exiting.
+    >&2 print -- Unexpected mode.  Exiting.
     exit 4
     ;;
 esac
