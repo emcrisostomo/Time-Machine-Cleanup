@@ -26,6 +26,35 @@ set -o nounset
 PROGNAME=$0
 VERSION=1.2.0
 
+# Define an integer variable to store the deletion threshold for each mode.
+# Default: 30 days
+# Default: 7 backups
+typeset -i DAYS_TO_KEEP=30
+typeset -i NUMBER_TO_KEEP=7
+typeset -i DRY_RUN=0
+typeset -i FORCE_EXECUTION=0
+# Execution modes
+#   - 0: number of days
+#   - 1: number of backups
+typeset -ri MODE_DAYS=1
+typeset -ri MODE_BACKUPS=2
+typeset -ri MODE_UNKNOWN=0
+typeset -i EXECUTION_MODE=${MODE_UNKNOWN}
+typeset -i ARGS_PROCESSED=0
+typeset -a TM_BACKUPS
+typeset -i TM_BACKUPS_LOADED=0
+typeset -a TM_DIALOG_OPTS=( --backtitle "Time Machine Cleanup" )
+typeset -a TM_DIALOG_CMD=( dialog ${TM_DIALOG_OPTS} )
+typeset -a TM_OPERATIONS=( D "Delete backups" L "List backups" E "Exit" )
+
+typeset -ri DIALOG_OK=0
+typeset -ri DIALOG_CANCEL=1
+typeset -ri DIALOG_HELP=2
+typeset -ri DIALOG_EXTRA=3
+typeset -ri DIALOG_ITEM_HELP=4
+typeset -ri DIALOG_ESC=255
+typeset -r TM_ERR_TEMP_FILE=$(mktemp)
+
 command -v tmutil > /dev/null 2>&1 || {
   >&2 print -- Cannot find tmutil.
   exit 1
@@ -48,22 +77,6 @@ print_usage()
   print
   print -- "Report bugs to <https://github.com/emcrisostomo/Time-Machine-Cleanup>."
 }
-
-# Define an integer variable to store the deletion threshold for each mode.
-# Default: 30 days
-# Default: 7 backups
-typeset -i DAYS_TO_KEEP=30
-typeset -i NUMBER_TO_KEEP=7
-typeset -i DRY_RUN=0
-typeset -i FORCE_EXECUTION=0
-# Execution modes
-#   - 0: number of days
-#   - 1: number of backups
-typeset -ri MODE_DAYS=1
-typeset -ri MODE_BACKUPS=2
-typeset -ri MODE_UNKNOWN=0
-typeset -i EXECUTION_MODE=${MODE_UNKNOWN}
-typeset -i ARGS_PROCESSED=0
 
 parse_opts()
 {
@@ -114,7 +127,7 @@ process_by_days()
 
   # As a safety precaution, just check that the output format has not changed.
   # If it has, let's not proceed.
-  for i in ${TM_BACKUPS_SORTED}
+  for i in ${TM_BACKUPS}
   do
     TM_DATE=$(basename $i)
 
@@ -126,13 +139,13 @@ process_by_days()
     fi
   done
 
-  for i in ${TM_BACKUPS_SORTED}
+  for i in ${TM_BACKUPS}
   do
     TM_DATE=$(basename $i)
 
     if [[ ${THRESHOLD_DATE} > ${TM_DATE} ]]
     then
-      if [[ ${i} != ${TM_BACKUPS_SORTED[-1]} ]]
+      if [[ ${i} != ${TM_BACKUPS[-1]} ]]
       then
         print -- "${TM_DATE} will be deleted."
 
@@ -154,22 +167,22 @@ process_by_backups()
     exit 2
   }
 
-  if (( ${NUMBER_TO_KEEP} >= ${#TM_BACKUPS_SORTED} ))
+  if (( ${NUMBER_TO_KEEP} >= ${#TM_BACKUPS} ))
   then
     exit 0
   fi
 
-  typeset -i LAST_IDX=$(( ${#TM_BACKUPS_SORTED} - ${NUMBER_TO_KEEP} ))
+  typeset -i LAST_IDX=$(( ${#TM_BACKUPS} - ${NUMBER_TO_KEEP} ))
 
   for i in $(seq 1 ${LAST_IDX})
   do
-    if [[ ${i} != ${TM_BACKUPS_SORTED[-1]} ]]
+    if [[ ${i} != ${TM_BACKUPS[-1]} ]]
     then
-      print -- "${TM_BACKUPS_SORTED[i]:t} will be deleted."
+      print -- "${TM_BACKUPS[i]:t} will be deleted."
 
       if (( ${DRY_RUN} == 0 ))
       then
-        tmutil delete ${TM_BACKUPS_SORTED[i]}
+        tmutil delete ${TM_BACKUPS[i]}
       fi
     else
       print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
@@ -197,12 +210,6 @@ tm_health_checks()
     exit 4
   fi
 
-  if (( ${EXECUTION_MODE} == ${MODE_UNKNOWN} ))
-  then
-    >&2 print -- "No mode specified.  Exiting."
-    exit 2
-  fi
-
   if (( EXECUTION_MODE & (EXECUTION_MODE - 1) ))
   then
     >&2 print -- "Only one mode can be specified.  Exiting."
@@ -210,27 +217,108 @@ tm_health_checks()
   fi
 }
 
+tm_load_backups()
+{
+  if (( TM_BACKUPS_LOADED > 0 ))
+  then
+    return
+  fi
+
+  # Get the full list of backups from tmutil
+  if TMUTIL_OUTPUT=$(tmutil listbackups 2> ${TM_ERR_TEMP_FILE})
+  then
+    TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups)}" )
+
+    # We are sorting the output of tmutil listbackups because its documentation
+    # states nowhere that the output is sorted in any way.
+    TM_BACKUPS=( ${(n)TM_BACKUPS} )
+
+    TM_BACKUPS_LOADED=1
+    TM_LOAD_BACKUPS=0
+  else
+    TM_LOAD_BACKUPS=1
+  fi
+}
+
+tm_start_batch()
+{
+  tm_load_backups
+
+  case ${EXECUTION_MODE} in
+    ${MODE_DAYS})
+      process_by_days
+      ;;
+    ${MODE_BACKUPS})
+      process_by_backups
+      ;;
+    *)
+      >&2 print -- "Unexpected mode.  Exiting."
+      exit 4
+      ;;
+  esac
+}
+
+tm_open_operation()
+{
+  case $1 in
+    D)
+      ${TM_DIALOG_CMD} --msgbox "To do" 0 0
+      ;;
+    E)
+      exit 0
+      ;;
+    L)
+      tm_load_backups
+
+      if (( TM_LOAD_BACKUPS == 0 ))
+      then
+        ${TM_DIALOG_CMD} --msgbox "${TM_BACKUPS}" 0 0
+      else
+        ${TM_DIALOG_CMD} --msgbox "$(cat ${TM_ERR_TEMP_FILE})" 0 0
+      fi
+      ;;
+    *)
+      >&2 print -- "Unknown operation $1.  This is a bug."
+      exit 1
+      ;;
+  esac
+}
+
+tm_start_dialog()
+{
+  command -v dialog > /dev/null 2>&1 ||
+    {
+      >&2 print -- "dialog is required to use the interactive mode."
+      exit 1
+    }
+
+  exec 3>&1
+
+  while true
+  do
+    ret=$( ${TM_DIALOG_CMD} --no-cancel --menu "Operations" 0 0 ${#TM_OPERATIONS} ${TM_OPERATIONS} 2>&1 1>&3)
+
+    case $? in
+      ${DIALOG_OK})
+        tm_open_operation ${ret}
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
+  exec 3>&-
+}
+
 # Main
 parse_opts $* && shift ${ARGS_PROCESSED}
 
 tm_health_checks
 
-# Get the full list of backups from tmutil
-TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups)}" )
-
-# We are sorting the output of tmutil listbackups because its documentation
-# states nowhere that the output is sorted in any way.
-TM_BACKUPS_SORTED=( ${(n)TM_BACKUPS} )
-
-case ${EXECUTION_MODE} in
-  ${MODE_DAYS})
-    process_by_days
-    ;;
-  ${MODE_BACKUPS})
-    process_by_backups
-    ;;
-  *)
-    >&2 print -- "Unexpected mode.  Exiting."
-    exit 4
-    ;;
-esac
+if (( ${EXECUTION_MODE} == ${MODE_UNKNOWN} ))
+then
+  tm_start_dialog
+else
+  tm_start_batch
+fi
