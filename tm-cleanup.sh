@@ -206,7 +206,7 @@ process_by_backups()
 tm_health_checks()
 {
   tm_check_required_programs
-  
+
   (( $# == 0 )) || {
     >&2 print -- "No arguments are allowed."
     exit 2
@@ -273,16 +273,74 @@ tm_start_batch()
   esac
 }
 
+tm_delete_backups()
+{
+  local -a backup_idx_to_delete=( ${=*} )
+
+  if (( ${#backup_idx_to_delete} == 0 ))
+  then
+    return
+  fi
+
+  {
+    for ((i = 1 ; i <= ${#backup_idx_to_delete} ; i += 1))
+    do
+      tmutil delete ${TM_BACKUPS[${i}]}
+      echo $(( $i * 100 / $# ))
+    done
+  } | dialog \
+        --gauge "Please wait while Time Machine backups are being deleted..." 0 0 0
+}
+
+tm_confirm_delete_backups()
+{
+  local ret=$( ${TM_DIALOG_CMD} \
+                 --yesno "Are you sure you want to delete the selected Time Machine backups?" 0 0 \
+                 2>&1 1>&3)
+
+  case $? in
+    ${DIALOG_OK})
+      tm_delete_backups
+      ;;
+    *)
+      break
+      ;;
+  esac
+}
+
 tm_open_delete_dialog()
 {
   tm_load_backups
 
-  if (( TM_LOAD_BACKUPS == 0 ))
+  if (( TM_LOAD_BACKUPS != 0 ))
   then
-    ${TM_DIALOG_CMD} --title ${TM_OPERATION_NAMES[D]} --msgbox "To do" 0 0
-  else
     ${TM_DIALOG_CMD} --title ${TM_OPERATION_NAMES[D]} --msgbox "$(cat ${TM_ERR_TEMP_FILE})" 0 0
+    return
   fi
+
+  local -a tm_backup_items
+
+  for i in $(seq 1 ${#TM_BACKUPS})
+  do
+    tm_backup_items+=${i}
+    tm_backup_items+=${TM_BACKUPS[${i}]}
+    tm_backup_items+=on
+  done
+
+  local ret=$( ${TM_DIALOG_CMD} \
+                 --title ${TM_OPERATION_NAMES[D]} \
+                 --checklist "Select the backups to delete" 0 0 \
+                 ${#TM_BACKUPS} ${tm_backup_items} \
+                 2>&1 1>&3)
+
+  case $? in
+    ${DIALOG_OK})
+      tm_confirm_delete_backups ${ret}
+      ;;
+    *)
+      break
+      ;;
+  esac
 }
 
 tm_open_operation()
