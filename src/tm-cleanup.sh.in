@@ -303,7 +303,7 @@ tm_delete_backups()
       print -- $(( $i * 100 / $# ))
     done
   } | ${TM_DIALOG_CMD} \
-        --title "Deleting backups"
+        --title "Deleting backups" \
         --gauge "Please wait while Time Machine backups are being deleted..." 0 0 0
 }
 
