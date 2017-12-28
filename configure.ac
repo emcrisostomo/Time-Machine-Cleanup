@@ -42,5 +42,9 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Checks for programs.
+AC_PATH_PROG([DIALOG_CMD], [dialog], [])
+AS_VAR_SET_IF([ac_cv_path_DIALOG_CMD],dnl
+  [],dnl
+  [AC_MSG_WARN([dialog is required to use interactive features of this program.])])
 
 AC_OUTPUT
