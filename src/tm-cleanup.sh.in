@@ -391,7 +391,12 @@ tm_start_dialog()
 
   while true
   do
-    ret=$( ${TM_DIALOG_CMD} --no-cancel --menu "Operations" 0 0 ${#TM_OPERATIONS} ${TM_OPERATIONS} 2>&1 1>&3)
+    ret=$( ${TM_DIALOG_CMD} \
+             --no-cancel \
+             --title "Main Menu" \
+             --menu "Select the operation to perform" 0 0 \
+             ${#TM_OPERATIONS} ${TM_OPERATIONS} \
+             2>&1 1>&3)
 
     case $? in
       ${DIALOG_OK})
