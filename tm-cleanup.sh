@@ -56,9 +56,21 @@ typeset -ri DIALOG_ITEM_HELP=4
 typeset -ri DIALOG_ESC=255
 typeset -r TM_ERR_TEMP_FILE=$(mktemp)
 
-command -v tmutil > /dev/null 2>&1 || {
-  >&2 print -- Cannot find tmutil.
-  exit 1
+trap 'tm_cleanup' INT TERM EXIT
+
+tm_check_required_programs()
+{
+  command -v tmutil > /dev/null 2>&1 ||
+    {
+      >&2 print -- Cannot find tmutil.
+      exit 1
+    }
+}
+
+tm_cleanup()
+{
+  rm -f ${TM_ERR_TEMP_FILE}
+  exec 3>&-
 }
 
 print_usage()
@@ -193,6 +205,8 @@ process_by_backups()
 
 tm_health_checks()
 {
+  tm_check_required_programs
+  
   (( $# == 0 )) || {
     >&2 print -- "No arguments are allowed."
     exit 2
@@ -259,11 +273,23 @@ tm_start_batch()
   esac
 }
 
+tm_open_delete_dialog()
+{
+  tm_load_backups
+
+  if (( TM_LOAD_BACKUPS == 0 ))
+  then
+    ${TM_DIALOG_CMD} --title ${TM_OPERATION_NAMES[D]} --msgbox "To do" 0 0
+  else
+    ${TM_DIALOG_CMD} --title ${TM_OPERATION_NAMES[D]} --msgbox "$(cat ${TM_ERR_TEMP_FILE})" 0 0
+  fi
+}
+
 tm_open_operation()
 {
   case $1 in
     D)
-      ${TM_DIALOG_CMD} --title ${TM_OPERATION_NAMES[$1]} --msgbox "To do" 0 0
+      tm_open_delete_dialog
       ;;
     E)
       exit 0
@@ -308,8 +334,6 @@ tm_start_dialog()
         ;;
     esac
   done
-
-  exec 3>&-
 }
 
 # Main
