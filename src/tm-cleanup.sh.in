@@ -282,19 +282,29 @@ tm_delete_backups()
     return
   fi
 
+  if (( ${#backup_idx_to_delete} == ${#TM_BACKUPS} ))
+  then
+    ${TM_DIALOG_CMD} \
+      --title "Invalid choice" \
+      --msg "At least one backups must be kept." 0 0
+    return
+  fi
+
   {
     for ((i = 1 ; i <= ${#backup_idx_to_delete} ; i += 1))
     do
       tmutil delete ${TM_BACKUPS[${i}]}
-      echo $(( $i * 100 / $# ))
+      print -- $(( $i * 100 / $# ))
     done
-  } | dialog \
+  } | ${TM_DIALOG_CMD} \
+        --title "Deleting backups"
         --gauge "Please wait while Time Machine backups are being deleted..." 0 0 0
 }
 
 tm_confirm_delete_backups()
 {
   local ret=$( ${TM_DIALOG_CMD} \
+                 --title "Confirmation" \
                  --yesno "Are you sure you want to delete the selected Time Machine backups?" 0 0 \
                  2>&1 1>&3)
 
@@ -405,3 +415,13 @@ then
 else
   tm_start_batch
 fi
+
+# Local variables:
+# coding: utf-8
+# mode: sh
+# eval: (sh-set-shell "zsh")
+# tab-width: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# sh-indentation: 2
+# End:
