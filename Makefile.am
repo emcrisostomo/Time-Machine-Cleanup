@@ -29,7 +29,7 @@
 ACLOCAL_AMFLAGS     = -I m4
 
 dist_doc_DATA       = README.md AUTHORS LICENSE NEWS
-dist_bin_SCRIPTS    = src/tm-cleanup.sh
+bin_SCRIPTS         = src/tm-cleanup.sh
 
 dist-hook:
 # The recipe cannot assume a file in $(distdir) is writable.
