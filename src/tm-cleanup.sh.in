@@ -283,6 +283,13 @@ tm_start_batch()
   esac
 }
 
+tm_show_last_error()
+{
+  tm_show_dialog \
+    --title "Error" \
+    --msgbox "$(cat ${TM_ERR_TEMP_FILE})" 0 0
+}
+
 tm_delete_backups()
 {
   local -a backup_idx_to_delete=( ${=*} )
@@ -303,8 +310,10 @@ tm_delete_backups()
   {
     for ((i = 1 ; i <= ${#backup_idx_to_delete} ; i += 1))
     do
-      # TODO: error message is not shown to the user
-      tmutil delete ${TM_BACKUPS[${i}]} || true
+      if ! tmutil delete ${TM_BACKUPS[${i}]} 2> ${TM_ERR_TEMP_FILE}
+      then
+        tm_show_last_error
+      fi
       print -- $(( $i * 100 / $# ))
     done
   } | ${TM_DIALOG_CMD} \
@@ -331,9 +340,7 @@ tm_open_delete_dialog()
 
   if (( TM_LOAD_BACKUPS != 0 ))
   then
-    ${TM_DIALOG_CMD} \
-      --title ${TM_OPERATION_NAMES[D]} \
-      --msgbox "$(cat ${TM_ERR_TEMP_FILE})" 0 0
+    tm_show_last_error
     return
   fi
 
@@ -390,9 +397,7 @@ tm_open_operation()
           --title ${TM_OPERATION_NAMES[$1]} \
           --msgbox "${TM_BACKUPS}" 0 0
       else
-        tm_show_dialog \
-          --title ${TM_OPERATION_NAMES[$1]} \
-          --msgbox "$(cat ${TM_ERR_TEMP_FILE})" 0 0
+        tm_show_last_error
       fi
       ;;
     *)
