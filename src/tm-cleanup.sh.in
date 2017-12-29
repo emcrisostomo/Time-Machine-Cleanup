@@ -70,7 +70,6 @@ tm_check_required_programs()
 tm_cleanup()
 {
   rm -f ${TM_ERR_TEMP_FILE}
-  exec 3>&-
 }
 
 print_usage()
@@ -290,16 +289,17 @@ tm_delete_backups()
 
   if (( ${#backup_idx_to_delete} == ${#TM_BACKUPS} ))
   then
-    ${TM_DIALOG_CMD} \
+    tm_show_dialog \
       --title "Invalid choice" \
-      --msg "At least one backups must be kept." 0 0
+      --msgbox "At least one backups must be kept." 0 0
     return
   fi
 
   {
     for ((i = 1 ; i <= ${#backup_idx_to_delete} ; i += 1))
     do
-      tmutil delete ${TM_BACKUPS[${i}]}
+      # TODO: error message is not shown to the user
+      tmutil delete ${TM_BACKUPS[${i}]} || true
       print -- $(( $i * 100 / $# ))
     done
   } | ${TM_DIALOG_CMD} \
@@ -309,17 +309,13 @@ tm_delete_backups()
 
 tm_confirm_delete_backups()
 {
-  local ret=$( ${TM_DIALOG_CMD} \
-                 --title "Confirmation" \
-                 --yesno "Are you sure you want to delete the selected Time Machine backups?" 0 0 \
-                 2>&1 1>&3)
+  tm_show_dialog \
+    --title "Confirmation" \
+    --yesno "Are you sure you want to delete the selected Time Machine backups?" 0 0
 
-  case $? in
+  case ${TM_DLG_LAST_STATUS} in
     ${DIALOG_OK})
-      tm_delete_backups
-      ;;
-    *)
-      break
+      tm_delete_backups $*
       ;;
   esac
 }
@@ -349,20 +345,26 @@ tm_open_delete_dialog()
   # Always disable the first element
   tm_backup_items[3]=off
 
-  local ret=$( ${TM_DIALOG_CMD} \
-                 --title ${TM_OPERATION_NAMES[D]} \
-                 --checklist "Select the backups to delete" 0 0 \
-                 ${#TM_BACKUPS} ${tm_backup_items} \
-                 2>&1 1>&3)
+  tm_show_dialog \
+    --title ${TM_OPERATION_NAMES[D]} \
+    --checklist "Select the backups to delete" 0 0 \
+    ${#TM_BACKUPS} ${tm_backup_items}
 
-  case $? in
+  case ${TM_DLG_LAST_STATUS} in
     ${DIALOG_OK})
-      tm_confirm_delete_backups ${ret}
-      ;;
-    *)
-      break
+      tm_confirm_delete_backups ${TM_DLG_LAST_RET}
       ;;
   esac
+}
+
+tm_show_dialog()
+{
+  set +o errexit
+
+  TM_DLG_LAST_RET=$( ${TM_DIALOG_CMD} $* 2>&1 1>&3 )
+  TM_DLG_LAST_STATUS=$?
+
+  set -o errexit
 }
 
 tm_open_operation()
@@ -379,11 +381,11 @@ tm_open_operation()
 
       if (( TM_LOAD_BACKUPS == 0 ))
       then
-        ${TM_DIALOG_CMD} \
+        tm_show_dialog \
           --title ${TM_OPERATION_NAMES[$1]} \
           --msgbox "${TM_BACKUPS}" 0 0
       else
-        ${TM_DIALOG_CMD} \
+        tm_show_dialog \
           --title ${TM_OPERATION_NAMES[$1]} \
           --msgbox "$(cat ${TM_ERR_TEMP_FILE})" 0 0
       fi
@@ -407,16 +409,15 @@ tm_start_dialog()
 
   while true
   do
-    ret=$( ${TM_DIALOG_CMD} \
-             --no-cancel \
-             --title "Main Menu" \
-             --menu "Select the operation to perform" 0 0 \
-             ${#TM_OPERATIONS} ${TM_OPERATIONS} \
-             2>&1 1>&3)
+    tm_show_dialog \
+      --no-cancel \
+      --title "Main Menu" \
+      --menu "Select the operation to perform" 0 0 \
+      ${#TM_OPERATIONS} ${TM_OPERATIONS}
 
-    case $? in
+    case ${TM_DLG_LAST_STATUS} in
       ${DIALOG_OK})
-        tm_open_operation ${ret}
+        tm_open_operation ${TM_DLG_LAST_RET}
         ;;
       *)
         break
