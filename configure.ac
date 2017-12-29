@@ -48,4 +48,8 @@ AS_VAR_SET_IF([ac_cv_path_DIALOG_CMD],dnl
   [],dnl
   [AC_MSG_WARN([dialog is required to use interactive features of this program.])])
 
+AX_PROG_DATE
+
+AS_VAR_IF([ax_cv_prog_date_bsd], [yes], [], [AC_MSG_ERROR([BSD date is required])])
+
 AC_OUTPUT
