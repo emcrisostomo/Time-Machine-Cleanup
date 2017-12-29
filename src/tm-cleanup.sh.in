@@ -58,6 +58,16 @@ typeset -r TM_ERR_TEMP_FILE=$(mktemp)
 
 trap 'tm_cleanup' INT TERM EXIT
 
+zshexit()
+{
+  exec 3>&-
+}
+
+tm_cleanup()
+{
+  rm -f ${TM_ERR_TEMP_FILE}
+}
+
 tm_check_required_programs()
 {
   command -v tmutil > /dev/null 2>&1 ||
@@ -65,11 +75,6 @@ tm_check_required_programs()
       >&2 print -- Cannot find tmutil.
       exit 1
     }
-}
-
-tm_cleanup()
-{
-  rm -f ${TM_ERR_TEMP_FILE}
 }
 
 print_usage()
