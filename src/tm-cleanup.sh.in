@@ -242,6 +242,13 @@ tm_health_checks()
   fi
 }
 
+tm_clear_backup_status()
+{
+  TM_BACKUPS_LOADED=0
+  TM_LOAD_BACKUPS_STATUS=0
+  TM_BACKUPS=( )
+}
+
 tm_load_backups()
 {
   if (( TM_BACKUPS_LOADED > 0 ))
@@ -259,9 +266,10 @@ tm_load_backups()
     TM_BACKUPS=( ${(n)TM_BACKUPS} )
 
     TM_BACKUPS_LOADED=1
-    TM_LOAD_BACKUPS=0
+    TM_LOAD_BACKUPS_STATUS=0
   else
-    TM_LOAD_BACKUPS=1
+    TM_BACKUPS_LOADED=0
+    TM_LOAD_BACKUPS_STATUS=1
   fi
 }
 
@@ -319,6 +327,8 @@ tm_delete_backups()
   } | ${TM_DIALOG_CMD} \
         --title "Deleting backups" \
         --gauge "Please wait while Time Machine backups are being deleted..." 0 0 0
+
+  tm_clear_backup_status
 }
 
 tm_confirm_delete_backups()
@@ -338,7 +348,7 @@ tm_open_delete_dialog()
 {
   tm_load_backups
 
-  if (( TM_LOAD_BACKUPS != 0 ))
+  if (( TM_LOAD_BACKUPS_STATUS != 0 ))
   then
     tm_show_last_error
     return
