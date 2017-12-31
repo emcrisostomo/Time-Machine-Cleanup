@@ -63,7 +63,27 @@ interactive interface can be launched by passing no arguments to the script:
 The interactive interface starts with a menu showing the available operations a
 user can perform:
 
-![tm-cleanup.sh - Start dialog](https://raw.githubusercontent.com/emcrisostomo/Time-Machine-Cleanup/assets/images/tm-start.png)
+![tm-cleanup.sh - Start](https://raw.githubusercontent.com/emcrisostomo/Time-Machine-Cleanup/assets/images/tm-start.png)
+
+The _Delete backups_ operation brings the user to a dialog where the backups to
+delete can be selected.  By default, backups are shown in reverse chronological
+order (i.e.: latest first) and all except the first are selected.
+
+![tm-cleanup.sh - Choose backups](https://raw.githubusercontent.com/emcrisostomo/Time-Machine-Cleanup/assets/images/tm-delete.png)
+
+The backups deletion may take a long time to complete, during which a progress
+dialog is shown.
+
+![tm-cleanup.sh - Backup deletion progress](https://raw.githubusercontent.com/emcrisostomo/Time-Machine-Cleanup/assets/images/tm-progress.png)
+
+At the end of the deletion, a confirmation is shown to the user.
+
+![tm-cleanup.sh - Backup deletion done](https://raw.githubusercontent.com/emcrisostomo/Time-Machine-Cleanup/assets/images/tm-delete-done.png)
+
+The script prevents users to delete all the backups.  If all the backups are
+selected, an error message is shown.
+
+![tm-cleanup.sh - Invalid backup choice](https://raw.githubusercontent.com/emcrisostomo/Time-Machine-Cleanup/assets/images/tm-delete-invalid-choice.png)
 
 Installation
 ------------
