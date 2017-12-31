@@ -1,7 +1,8 @@
 NEWS
 ****
 
-New in 1.2.0:
+New in 2.0.0:
 
   * Add Autotools support.
+  * Add dialog-based interface.
 
