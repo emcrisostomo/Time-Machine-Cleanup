@@ -60,6 +60,11 @@ interactive interface can be launched by passing no arguments to the script:
 
     $ tm-cleanup.sh
 
+The interactive interface starts with a menu showing the available operations a
+user can perform:
+
+![tm-cleanup.sh - Start dialog](https://raw.githubusercontent.com/emcrisostomo/Time-Machine-Cleanup/assets/images/tm-start.png)
+
 Installation
 ------------
 
