@@ -88,30 +88,30 @@ selected, an error message is shown.
 Installation
 ------------
 
-The scripts require no installation: they can be downloaded and run from any
-location.  However, this repository provides an installation script that creates
-symbolic links to `/usr/local/bin`, a directory which is included by default in
-the `${PATH}` of any OS X user.  Installing the symbolic links has the advantage
-of always providing the current version of the scripts on the `${PATH}` when the
-local repository is updated.
+This package is configured using the GNU Autotools.  For this reason, users who
+just wish to use this software have to download a release tarball.  Release
+tarball are attached to each release.  The [latest] release of this package can
+always be found using the [latest] tag.
 
-To install the symbolic links:
+[latest]: https://github.com/emcrisostomo/Time-Machine-Cleanup/releases/latest].
 
-```
-$ sudo make install
-```
+Once a release tarball has been downloaded and uncompressed, this package can be
+installed using the following commands:
 
-To uninstall the symbolic links:
+    $ ./configure
+    $ sudo make install
 
-```
-$ sudo make uninstall
-```
+Please, refer to the Autotools documentation if you'd like to customise the
+installation procedure.
 
-To make the changes visibile in an existing ZSH session, execute this command:
+The package can then be uninstalled using the following command:
 
-```
-$ rehash
-```
+    $ sudo make uninstall
+
+To make path changes visibile in an existing ZSH session, execute the `rehash`
+command:
+
+    $ rehash
 
 Requirements
 ------------
