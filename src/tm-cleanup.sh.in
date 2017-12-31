@@ -311,7 +311,7 @@ tm_delete_backups()
   then
     tm_show_dialog \
       --title "Invalid choice" \
-      --msgbox "At least one backups must be kept." 0 0
+      --msgbox "At least one backup must be kept." 0 0
     return
   fi
 
