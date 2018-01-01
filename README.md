@@ -127,7 +127,7 @@ Bug reports can be sent directly to the authors.
 
 -----
 
-Copyright (C) 2016-2017 Enrico M. Crisostomo
+Copyright (C) 2015-2017 Enrico M. Crisostomo
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
