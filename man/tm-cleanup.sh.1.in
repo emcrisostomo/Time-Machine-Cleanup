@@ -1,0 +1,113 @@
+.\"   $Id$
+.\" Copyright (c) 2015-2017 Enrico M. Crisostomo <enrico.m.crisostomo@gmail.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 3, or (at your option)
+.\" any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\"
+.\"   Man page for the tm-cleanup.sh command.
+.\"
+.\"   $Log$
+.\"
+.Dd @MAN_DATE@
+.Dt "tm-cleanup.sh" "1" "tm-cleanup.sh"
+.Os "@TARGET_VENDOR@" "@TARGET_OS@"
+.Pp
+.Sh NAME
+.Nm tm-cleanup.sh
+.Nd Zsh script to clean up Time Machine backups and reduce their size.
+.Sh SYNOPSIS
+.Nm tm-cleanup.sh [-d days] [-n number] [-f] [-x]
+.Nm tm-cleanup.sh -h
+.Sh DESCRIPTION
+The
+.Nm
+script is a Zsh script that lists the completed Time Machine snapshots and
+deletes those that satisfy the specified criteria.  Two types of deletion
+criteria exist:
+.Bl -tag -width indent
+.It -
+By date: snapshots that are older than a specified number of days are
+deleted.  The default threshold is 30 days.
+.It -
+By number: a maximum number of snapshots is retained and oldest snapshots are
+deleted.
+.El
+.Pp
+Only one deletion criteria can be specified.
+.Pp
+The following options are accepted:
+.Bl -tag -width indent
+.It Fl d Ar days
+Backups older than
+.Ar days
+will be deleted.
+.It Fl n Ar number
+Retain a maximum
+.Ar number
+of backups.
+.It Fl f
+By default
+.Nm
+exits and prints an error message if a Time Machine backup is currently in
+progress. This option forces the backup deletion concurrently.
+.It Fl h
+Print the help message and exit.
+.It Fl x
+Perform a
+.Em dry
+clean: print the list of operations that will be performed and exit..
+.El
+.Sh INTERACTIVE INTERFACE
+.Nm
+also provides an interactive interface which is useful if the user wishes to
+pick which backups to delete using a dialog-based interface.  The interactive
+interface can be launched by passing no arguments to the script:
+.Pp
+.Dl $ tm-cleanup.sh
+.Pp
+The interactive interface guides the user through the backup deletion process:
+.Bl -tag -width indent
+.It -
+The interactive interface starts with a menu showing the available operations a
+user can perform.
+.It -
+The
+.Em Delete backups
+operation brings the user to a dialog where the backups to delete can be
+selected.  By default, backups are shown in reverse chronological order (i.e.:
+latest first) and all except the first are selected.
+.It -
+The backups deletion may take a long time to complete, during which a progress
+dialog is shown.
+.It -
+At the end of the deletion, a confirmation is shown to the user.
+.It -
+The script prevents users to delete all the backups.  If all the backups are
+selected, an error message is shown.
+.El
+.Sh REQUIREMENTS
+The command-line interface of this script requires Zsh.  To use the dialog-based
+interface,
+.Em dialog
+is required.
+.Sh COMPATIBILITY
+.Nm
+can be used on any system supporting Time Machine and the
+.Em tmutil(8)
+interface.
+.Sh BUGS
+See https://github.com/emcrisostomo/Time-Machine-Cleanup/issues
+for open issues or to create a new one.
+.Sh AUTHOR
+Originally written by
+.An Enrico M. Crisostomo Aq enrico.m.crisostomo@gmail.com .

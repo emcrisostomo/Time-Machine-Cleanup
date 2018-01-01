@@ -20,3 +20,4 @@ Makefile
 
 /**/*~
 src/tm-cleanup.sh
+man/tm-cleanup.sh.1
