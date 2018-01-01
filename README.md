@@ -1,7 +1,7 @@
 Time Machine Cleanup
 ====================
 
-`tm-cleanup.sh` is a ZSH script to clean up Time Machine backups and reduce its
+`tm-cleanup.sh` is a Zsh script to clean up Time Machine backups and reduce its
 size.  `tm-cleanup.sh` provides two interfaces:
 
   * A command-line interface.
@@ -14,7 +14,7 @@ size.  `tm-cleanup.sh` provides two interfaces:
 tm-cleanup.sh
 -------------
 
-`tm-cleanup.sh` is a ZSH script that lists the completed Time Machine snapshots
+`tm-cleanup.sh` is a Zsh script that lists the completed Time Machine snapshots
 and deletes those that satisfy the specified criteria.  Two types of deletion
 criteria exist:
 
@@ -108,7 +108,7 @@ The package can then be uninstalled using the following command:
 
     $ sudo make uninstall
 
-To make path changes visibile in an existing ZSH session, execute the `rehash`
+To make path changes visibile in an existing Zsh session, execute the `rehash`
 command:
 
     $ rehash
@@ -116,7 +116,7 @@ command:
 Requirements
 ------------
 
-Since a compatible version of ZSH is bundled with OS X, the command-line
+Since a compatible version of Zsh is bundled with OS X, the command-line
 interface of this script has no other requirements.  To use the dialog-based
 interface, `dialog` is required.
 
