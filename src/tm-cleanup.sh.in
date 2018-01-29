@@ -43,10 +43,14 @@ typeset -i EXECUTION_MODE=${MODE_UNKNOWN}
 typeset -i ARGS_PROCESSED=0
 typeset -a TM_BACKUPS
 typeset -i TM_BACKUPS_LOADED=0
-typeset -a TM_DIALOG_OPTS=( --backtitle "Time Machine Cleanup" )
-typeset -a TM_DIALOG_CMD=( dialog ${TM_DIALOG_OPTS} )
-typeset -a TM_OPERATIONS=( D "Delete backups" E "Exit" )
-typeset -A TM_OPERATION_NAMES=( D "Delete backups" E "Exit" )
+typeset -a TM_DIALOG_OPTS
+TM_DIALOG_OPTS=( --backtitle "Time Machine Cleanup" )
+typeset -a TM_DIALOG_CMD
+TM_DIALOG_CMD=( dialog ${TM_DIALOG_OPTS} )
+typeset -a TM_OPERATIONS
+TM_OPERATIONS=( D "Delete backups" E "Exit" )
+typeset -A TM_OPERATION_NAMES
+TM_OPERATION_NAMES=( D "Delete backups" E "Exit" )
 
 typeset -ri DIALOG_OK=0
 typeset -ri DIALOG_CANCEL=1
@@ -300,7 +304,8 @@ tm_show_last_error()
 
 tm_delete_backups()
 {
-  local -a backup_idx_to_delete=( ${=*} )
+  local -a
+  backup_idx_to_delete=( ${=*} )
 
   if (( ${#backup_idx_to_delete} == 0 ))
   then
