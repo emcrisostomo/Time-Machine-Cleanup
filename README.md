@@ -93,7 +93,7 @@ just wish to use this software have to download a release tarball.  Release
 tarball are attached to each release.  The [latest] release of this package can
 always be found using the [latest] tag.
 
-[latest]: https://github.com/emcrisostomo/Time-Machine-Cleanup/releases/latest].
+[latest]: https://github.com/emcrisostomo/Time-Machine-Cleanup/releases/latest
 
 Once a release tarball has been downloaded and uncompressed, this package can be
 installed using the following commands:
