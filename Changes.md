@@ -11,9 +11,9 @@ I don't have access to a system with TM volumes on HFS+, so that needs to be tes
 
 ### Potential Update
 
-The delete entry in the tmutil manpage seems to indicate a difference in the required switches for APFS and HFS+. If true, then `MACHINE_DIR` could be appended to an array that includes the `-d` switch.
+The delete entry in the tmutil manpage seems to indicate a difference in the required switches for APFS and HFS+. If true, then `MACHINE_DIR` could be appended to an array that includes the `-t` and `-d` switches.
 
-If the line `set -o nounset` is removed from the script, then this array could be empty for cases where TM uses HFS+. Example code to test TM FS.
+If `set -o nounset` is removed from the script, then this array could be empty for cases where TM uses HFS+. Example code to test TM FS.
 
 ```zsh
 tm_mount_point=$(tmutil machinedirectory)
@@ -70,7 +70,7 @@ Also in `tm_health_checks()` updated the check to see if a TM backup is in progr
 In `tm_load_backups()`, the assignment line with `tmutil` needed to have a `-t` added to the `tmutil listbackups` command.
 `TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups -t)}" )`
 
-Finally, I upped the version in `configure.ac` from 2.0.0 to 2.0.1. 
+Finally, I upped the version in `configure.ac` from 2.0.0 to 2.1.0.
 
 It's now: `AC_INIT([tm-cleanup], [2.1.0], [enrico.m.crisostomo@gmail.com])`
 
