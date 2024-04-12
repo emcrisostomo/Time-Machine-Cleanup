@@ -1,8 +1,12 @@
 # Updates to Time-Machine-Cleanup v2.1.1
 
-The version of this [project](https://github.com/emcrisostomo/Time-Machine-Cleanup) from Enrico hasn't been updated for ~7 years.
+The original version of this [project](https://github.com/emcrisostomo/Time-Machine-Cleanup) from Enrico hasn't been updated for ~7 years.
 
-At that time, TM backups were housed in an HFS+ FS. In Big Sur it became possible to use APFS for TM backups. This seems to have changed the semantics of the `tmutil(8)` command. The associated manpage details different treatment for HFS+ and APFS TM backup volumes.
+At that time, TM backups were housed in an HFS+ FS. 
+
+In Big Sur it became possible to use APFS for TM backups. This seems to have changed the semantics of the `tmutil(8)` command. The associated manpage details different treatment for HFS+ and APFS TM backup volumes.
+
+The updates for this version are in this [repo](https://github.com/rprimmer/Time-Machine-Cleanup/tree/Sonoma-changes).
 
 ## Testing
 
@@ -51,6 +55,10 @@ Added flag `-s` to show existing TM backups. Changes:
 * added to `parse_opts()`, and
 * added to `tm_start_batch()`.
 
+Upped the version in `configure.ac` from 2.1.0 to 2.1.1.
+
+It's now: `AC_INIT([tm-cleanup], [2.1.1], [enrico.m.crisostomo@gmail.com])`
+
 ## Code Changes v2.1.0
 
 ### Sonoma APFS Fixes
@@ -94,7 +102,7 @@ In `tm_load_backups()`, the assignment line with `tmutil` needed to have a `-t` 
 
 Finally, I upped the version in `configure.ac` from 2.0.0 to 2.1.0.
 
-It's now: `AC_INIT([tm-cleanup], [2.1.1], [enrico.m.crisostomo@gmail.com])`
+It's now: `AC_INIT([tm-cleanup], [2.1.0], [enrico.m.crisostomo@gmail.com])`
 
 ## TODO
 
