@@ -1,4 +1,4 @@
-# Updates to Time-Machine-Cleanup, v2.1.0
+# Updates to Time-Machine-Cleanup v2.1.1
 
 The version of this [project](https://github.com/emcrisostomo/Time-Machine-Cleanup) from Enrico hasn't been updated for ~7 years.
 
@@ -11,7 +11,7 @@ I don't have access to a system with TM volumes on HFS+, so that needs to be tes
 
 ### Potential Update
 
-The delete entry in the tmutil manpage seems to indicate a difference in the required switches for APFS and HFS+. If true, then `MACHINE_DIR` could be appended to an array that includes the `-t` and `-d` switches.
+The delete entry in the tmutil manpage seems to indicate a difference in the required flags for APFS and HFS+. If true, then `MACHINE_DIR` could be appended to an array that includes the `-t` and `-d` flags.
 
 If `set -o nounset` is removed from the script, then this array could be empty for cases where TM uses HFS+. Example code to test TM FS.
 
@@ -36,11 +36,24 @@ else
 fi
 ```
 
-## Code Changes
+## Code Changes v2.1.1
 
-Version 2.1.0 changes are in the Sonoma-changes [branch](https://github.com/rprimmer/Time-Machine-Cleanup/tree/Sonoma-changes).
+Version 2.1.1 changes are in the Sonoma-changes [branch](https://github.com/rprimmer/Time-Machine-Cleanup/tree/Sonoma-changes).
 
-Here are the changes made to each module.
+### New Feature
+
+Here are the changes made.
+
+Added flag `-s` to show existing TM backups. Changes:
+
+* added global `MODE_SHOW_BACKUPS=4`,
+* added to `print_usage()`,
+* added to `parse_opts()`, and
+* added to `tm_start_batch()`.
+
+## Code Changes v2.1.0
+
+### Sonoma APFS Fixes
 
 In `process_by_days()`, changed `tmutil delete ${i}` to `tmutil delete -t ${i} -d "$MACHINE_DIR"`, where `MACHINE_DIR` is created in the `tm_health_checks()`.
 
@@ -56,7 +69,7 @@ In `tm_health_checks()` added assignment for `MACHINE_DIR`.
   fi
 ```
 
-Also in `tm_health_checks()` updated the check to see if a TM backup is in progress.
+Also in `tm_health_checks()` updated the two checks to see if a TM backup is in progress.
 
 ```zsh
  if (( ${FORCE_EXECUTION} == 0 )); then
@@ -66,13 +79,22 @@ Also in `tm_health_checks()` updated the check to see if a TM backup is in progr
     fi
   fi
 ```
+and
+
+```zsh
+  if (( ${FORCE_EXECUTION} == 0 )) && tmutil status | grep -E -q 'Starting|PreparingSourceVolumes|FindingChanges|Copying|ThinningPostBackup';
+  then
+    >&2 print -- "A Time Machine backup is being performed.  Skip execution."
+    exit 4
+  fi
+```
 
 In `tm_load_backups()`, the assignment line with `tmutil` needed to have a `-t` added to the `tmutil listbackups` command.
 `TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups -t)}" )`
 
 Finally, I upped the version in `configure.ac` from 2.0.0 to 2.1.0.
 
-It's now: `AC_INIT([tm-cleanup], [2.1.0], [enrico.m.crisostomo@gmail.com])`
+It's now: `AC_INIT([tm-cleanup], [2.1.1], [enrico.m.crisostomo@gmail.com])`
 
 ## TODO
 

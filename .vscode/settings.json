@@ -1,9 +1,16 @@
 {
     "cSpell.words": [
+        "ACLOCAL",
+        "AMFLAGS",
+        "Crisostomo",
         "diskutil",
+        "distdir",
         "listbackups",
         "machinedirectory",
         "nounset",
+        "oneline",
+        "PREREQ",
+        "SRCDIR",
         "tmutil"
     ]
 }
