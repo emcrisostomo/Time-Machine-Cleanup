@@ -30,7 +30,7 @@
 # Process this file with autoconf to produce a configure script.
 dnl Copyright (C) 2015-2017 Enrico M. Crisostomo
 AC_PREREQ([2.69])
-AC_INIT([tm-cleanup], [2.0.0], [enrico.m.crisostomo@gmail.com])
+AC_INIT([tm-cleanup], [2.1.1], [enrico.m.crisostomo@gmail.com])
 AC_COPYRIGHT([2015-2017 (C) Enrico M. Crisostomo])
 AC_REVISION([$Revision: 1$])
 AC_CONFIG_SRCDIR([LICENSE])

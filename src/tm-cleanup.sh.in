@@ -38,6 +38,7 @@ typeset -i FORCE_EXECUTION=0
 #   - 1: number of backups
 typeset -ri MODE_DAYS=1
 typeset -ri MODE_BACKUPS=2
+typeset -ri MODE_SHOW_BACKUPS=4
 typeset -ri MODE_UNKNOWN=0
 typeset -i EXECUTION_MODE=${MODE_UNKNOWN}
 typeset -i ARGS_PROCESSED=0
@@ -90,6 +91,7 @@ print_usage()
   print -- " -f         Force execution even if a Time Machine backup is in progress."
   print -- " -h         Show this help."
   print -- " -n         Number of backups to keep."
+  print -- " -s         Show backups."
   print -- " -x         Perform a dry run."
   print
   print -- "Report bugs to <https://github.com/emcrisostomo/Time-Machine-Cleanup>."
@@ -97,7 +99,7 @@ print_usage()
 
 parse_opts()
 {
-  while getopts ":hd:fn:x" opt
+  while getopts ":hd:fn:sx" opt
   do
     case $opt in
       h)
@@ -114,6 +116,9 @@ parse_opts()
       n)
         NUMBER_TO_KEEP=${OPTARG}
         EXECUTION_MODE=$((MODE_BACKUPS | EXECUTION_MODE))
+        ;;
+      s)
+        EXECUTION_MODE=$((MODE_SHOW_BACKUPS))
         ;;
       x)
         DRY_RUN=1
@@ -174,7 +179,7 @@ process_by_days()
 
         if (( ${DRY_RUN} == 0 ))
         then
-          tmutil delete ${i}
+          tmutil delete -t ${i} -d "$MACHINE_DIR"
         fi
       else
         print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
@@ -205,7 +210,7 @@ process_by_backups()
 
       if (( ${DRY_RUN} == 0 ))
       then
-        tmutil delete ${TM_BACKUPS[i]}
+        tmutil delete -t ${TM_BACKUPS[i]} -d "$MACHINE_DIR"
       fi
     else
       print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
@@ -217,6 +222,12 @@ tm_health_checks()
 {
   tm_check_required_programs
 
+  MACHINE_DIR=$(tmutil machinedirectory)
+  if [[ -z "$MACHINE_DIR" ]]; then
+    echo "failed to set the machine directory for tmutil"
+    exit 3
+  fi
+
   (( $# == 0 )) || {
     >&2 print -- "No arguments are allowed."
     exit 2
@@ -227,9 +238,16 @@ tm_health_checks()
     exit 1
   }
 
+  if (( ${FORCE_EXECUTION} == 0 )); then
+    if tmutil status | grep -E -q 'Starting|PreparingSourceVolumes|FindingChanges|Copying|ThinningPostBackup'; then
+      print -- "A Time Machine backup is being performed. Skipping execution." >&2
+      exit 4
+    fi
+  fi
+
   # Check if a backup is running and if it is, skip execution.
   # This check relies on the undocumented tmutil `status' verb.
-  if (( ${FORCE_EXECUTION} == 0 )) && tmutil status | grep Running | grep -q 1
+  if (( ${FORCE_EXECUTION} == 0 )) && tmutil status | grep -E -q 'Starting|PreparingSourceVolumes|FindingChanges|Copying|ThinningPostBackup';
   then
     >&2 print -- "A Time Machine backup is being performed.  Skip execution."
     exit 4
@@ -259,7 +277,7 @@ tm_load_backups()
   # Get the full list of backups from tmutil
   if TMUTIL_OUTPUT=$(tmutil listbackups 2> ${TM_ERR_TEMP_FILE})
   then
-    TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups)}" )
+    TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups -t)}" )
 
     # We are sorting the output of tmutil listbackups because its documentation
     # states nowhere that the output is sorted in any way.
@@ -283,6 +301,9 @@ tm_start_batch()
       ;;
     ${MODE_BACKUPS})
       process_by_backups
+      ;;
+    ${MODE_SHOW_BACKUPS})
+      tmutil listbackups
       ;;
     *)
       >&2 print -- "Unexpected mode.  Exiting."
@@ -318,6 +339,7 @@ tm_delete_backups()
   {
     for ((i = 1 ; i <= ${#backup_idx_to_delete} ; i += 1))
     do
+      # TODO: needs to be updated for macOS Sonoma 
       if ! tmutil delete ${TM_BACKUPS[${i}]} 2> ${TM_ERR_TEMP_FILE}
       then
         tm_show_last_error
