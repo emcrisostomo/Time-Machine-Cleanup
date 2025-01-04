@@ -37,6 +37,8 @@ typeset -i FORCE_EXECUTION=0
 # Execution modes
 #   - 0: number of days
 #   - 1: number of backups
+# Time Machine directory
+typeset TM_MACHINE_DIR
 typeset -ri MODE_DAYS=1
 typeset -ri MODE_BACKUPS=2
 typeset -ri MODE_SHOW_BACKUPS=4
@@ -180,7 +182,7 @@ process_by_days()
 
         if (( ${DRY_RUN} == 0 ))
         then
-          tmutil delete -t ${i} -d "$MACHINE_DIR"
+          tmutil delete -t ${i} -d ${TM_MACHINE_DIR}
         fi
       else
         print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
@@ -211,7 +213,7 @@ process_by_backups()
 
       if (( ${DRY_RUN} == 0 ))
       then
-        tmutil delete -t ${TM_BACKUPS[i]} -d ${MACHINE_DIR}
+        tmutil delete -t ${TM_BACKUPS[i]} -d ${TM_MACHINE_DIR}
       fi
     else
       print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
@@ -223,8 +225,8 @@ tm_health_checks()
 {
   tm_check_required_programs
 
-  MACHINE_DIR=$(tmutil machinedirectory)
-  if [[ -z ${MACHINE_DIR} ]]; then
+  TM_MACHINE_DIR=$(tmutil machinedirectory)
+  if [[ -z ${TM_MACHINE_DIR} ]]; then
     echo "failed to set the machine directory for tmutil"
     exit 3
   fi
@@ -341,7 +343,7 @@ tm_delete_backups()
     for ((i = 1 ; i <= ${#backup_idx_to_delete} ; i += 1))
     do
       # TODO: needs to be updated for macOS Sonoma 
-      if ! tmutil delete -t ${TM_BACKUPS[${i}]} -d ${MACHINE_DIR} 2> ${TM_ERR_TEMP_FILE}
+      if ! tmutil delete -t ${TM_BACKUPS[${i}]} -d ${TM_MACHINE_DIR} 2> ${TM_ERR_TEMP_FILE}
       then
         tm_show_last_error
       fi
