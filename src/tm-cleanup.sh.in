@@ -341,7 +341,7 @@ tm_delete_backups()
     for ((i = 1 ; i <= ${#backup_idx_to_delete} ; i += 1))
     do
       # TODO: needs to be updated for macOS Sonoma 
-      if ! tmutil delete ${TM_BACKUPS[${i}]} 2> ${TM_ERR_TEMP_FILE}
+      if ! tmutil delete -t ${TM_BACKUPS[${i}]} -d ${MACHINE_DIR} 2> ${TM_ERR_TEMP_FILE}
       then
         tm_show_last_error
       fi
