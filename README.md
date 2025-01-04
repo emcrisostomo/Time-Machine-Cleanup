@@ -120,6 +120,45 @@ Since a compatible version of Zsh is bundled with OS X, the command-line
 interface of this script has no other requirements.  To use the dialog-based
 interface, `dialog` is required.
 
+Testing locally
+---------------
+
+To create an HFS+ disk image:
+
+    $ hdiutil create -size 100g \
+        -fs HFS+J -type SPARSEBUNDLE \
+        -volname "TimeMachineBackup-HFSplus" \
+        ~/TimeMachineBackup-HFSplus
+
+To create an APFS disk image:
+
+    $ hdiutil create -size 100g \
+        -fs APFS -type SPARSEBUNDLE \
+        -volname "TimeMachineBackup-APFS" \
+        ~/TimeMachineBackup-APFS
+
+Check whether the disk is mounted:
+
+    $ diskutil list
+
+If it's not mounted, attach it to the system:
+
+    $ hdiutil attach ~/TimeMachineBackup-APFS
+
+Verify it's mounted:
+
+    $ ls /Volumes
+
+Set it as the destination of a Time Machine backup (it might be necessary to
+grant _Full Disk Access_ permissions to the terminal application used to launch
+the following command):
+
+    $ sudo tmutil setdestination /Volumes/TimeMachineBackup-APFS
+
+Verify the configuration:
+
+    $ tmutil destinationinfo
+
 Bug Reports
 -----------
 
@@ -127,7 +166,7 @@ Bug reports can be sent directly to the authors.
 
 -----
 
-Copyright (C) 2015-2017 Enrico M. Crisostomo
+Copyright (C) 2015-2025 Enrico M. Crisostomo
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
