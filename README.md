@@ -149,11 +149,14 @@ Verify it's mounted:
 
     $ ls /Volumes
 
-Set it as the destination of a Time Machine backup (it might be necessary to
+Set it as the destination of a Time Machine backup.  It might be necessary to
 grant _Full Disk Access_ permissions to the terminal application used to launch
-the following command):
+the following command, or use the _Preferences_ application.
 
-    $ sudo tmutil setdestination /Volumes/TimeMachineBackup-APFS
+*Note:* make sure to use the `-a` flag in order not to clobber the current set
+of destinations.
+
+    $ sudo tmutil -a setdestination /Volumes/TimeMachineBackup-APFS
 
 Verify the configuration:
 
