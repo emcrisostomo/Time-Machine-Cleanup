@@ -1,7 +1,7 @@
 #!/bin/zsh
 # -*- coding: utf-8; tab-width: 2; indent-tabs-mode: nil; sh-basic-offset: 2; sh-indentation: 2; -*- vim:fenc=utf-8:et:sw=2:ts=2:sts=2
 #
-# Copyright (C) 2016-2017 Enrico M. Crisostomo
+# Copyright (C) 2016-2025 Enrico M. Crisostomo
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 setopt local_options
 setopt local_traps
 unsetopt glob_subst
+unsetopt shwordsplit
 
 set -o errexit
 set -o nounset
@@ -210,7 +211,7 @@ process_by_backups()
 
       if (( ${DRY_RUN} == 0 ))
       then
-        tmutil delete -t ${TM_BACKUPS[i]} -d "$MACHINE_DIR"
+        tmutil delete -t ${TM_BACKUPS[i]} -d ${MACHINE_DIR}
       fi
     else
       print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
@@ -223,7 +224,7 @@ tm_health_checks()
   tm_check_required_programs
 
   MACHINE_DIR=$(tmutil machinedirectory)
-  if [[ -z "$MACHINE_DIR" ]]; then
+  if [[ -z ${MACHINE_DIR} ]]; then
     echo "failed to set the machine directory for tmutil"
     exit 3
   fi
