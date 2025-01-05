@@ -8,16 +8,12 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [macos-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Install dependencies on Ubuntu
-      if: matrix.os == 'ubuntu-latest'
       run: |
         brew update
         brew install autoconf automake autopoint gettext git make
