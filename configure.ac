@@ -1,5 +1,5 @@
 #                                               -*- Autoconf -*-
-# Copyright (C) 2015-2017 Enrico M. Crisostomo <enrico.m.crisostomo@gmail.com>
+# Copyright (C) 2015-2025 Enrico M. Crisostomo <enrico.m.crisostomo@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # Process this file with autoconf to produce a configure script.
-dnl Copyright (C) 2015-2017 Enrico M. Crisostomo
+dnl Copyright (C) 2015-2025 Enrico M. Crisostomo
 AC_PREREQ([2.69])
-AC_INIT([tm-cleanup], [2.0.0], [enrico.m.crisostomo@gmail.com])
+AC_INIT([tm-cleanup], [2.1.0], [enrico.m.crisostomo@gmail.com])
 AC_COPYRIGHT([2015-2017 (C) Enrico M. Crisostomo])
 AC_REVISION([$Revision: 1$])
 AC_CONFIG_SRCDIR([LICENSE])

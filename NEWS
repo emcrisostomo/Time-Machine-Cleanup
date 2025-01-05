@@ -1,6 +1,10 @@
 NEWS
 ****
 
+New in 2.1.0:
+
+  * Add support for APFS Time Machine targets and updated tmutil syntax.
+
 New in 2.0.0:
 
   * Add Autotools support.
