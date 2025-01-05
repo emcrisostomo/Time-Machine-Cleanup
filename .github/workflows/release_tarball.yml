@@ -1,0 +1,55 @@
+name: Release tarball
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPOSITORY_NAME: Time-Machine-Cleanup
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check autotools status
+      id: check_status
+      uses: actions/github-script@v4
+      with:
+        script: |
+          const status = await github.repos.getCombinedStatusForRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.payload.release.target_commitish
+          });
+          const autotoolsStatus = status.data.statuses.find(s => s.context === 'autotools');
+          if (!autotoolsStatus || autotoolsStatus.state !== 'success') {
+            core.setFailed('Autotools build did not complete successfully');
+          }
+
+    - name: Install dependencies on macOS
+      run: |
+        brew update
+        brew upgrade
+        brew install autoconf automake gettext git make
+    
+    - name: Run autogen
+      run: ./autogen.sh
+
+    - name: Configure
+      run: |
+        ./configure
+
+    - name: Build and Test
+      run: make distcheck
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./${{ env.REPOSITORY_NAME }}-${{ github.event.release.tag_name }}.tar.gz
+        asset_name: ${{ env.REPOSITORY_NAME }}-${{ github.event.release.tag_name }}.tar.gz
+        asset_content_type: application/gzip
