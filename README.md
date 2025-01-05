@@ -11,6 +11,13 @@ size.  `tm-cleanup.sh` provides two interfaces:
 `tm-cleanup.sh` requires super-user privileges, so it's normally executed using
 `sudo`.
 
+What's new in 2.1.0
+-------------------
+
+  * Updated to support APFS Time Machine targets and new `tmutil` syntax.
+
+  * Tested on macOS Sequoia 15.2.
+
 tm-cleanup.sh
 -------------
 
