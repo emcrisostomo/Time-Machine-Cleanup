@@ -1,4 +1,4 @@
-# Updates to Time-Machine-Cleanup v2.1.1
+# Updates to Time-Machine-Cleanup v. 2.1.0
 
 The original version of this [project](https://github.com/emcrisostomo/Time-Machine-Cleanup) from Enrico hasn't been updated for ~7 years.
 
@@ -40,9 +40,9 @@ else
 fi
 ```
 
-## Code Changes v2.1.1
+## Code Changes v. 2.1.0
 
-Version 2.1.1 changes are in the Sonoma-changes [branch](https://github.com/rprimmer/Time-Machine-Cleanup/tree/Sonoma-changes).
+Version 2.1.0 changes are in the Sonoma-changes [branch](https://github.com/rprimmer/Time-Machine-Cleanup/tree/Sonoma-changes).
 
 ### New Feature
 
@@ -55,9 +55,9 @@ Added flag `-s` to show existing TM backups. Changes:
 * added to `parse_opts()`, and
 * added to `tm_start_batch()`.
 
-Upped the version in `configure.ac` from 2.1.0 to 2.1.1.
+Upped the version in `configure.ac` from 2.1.0 to 2.1.0.
 
-It's now: `AC_INIT([tm-cleanup], [2.1.1], [enrico.m.crisostomo@gmail.com])`
+It's now: `AC_INIT([tm-cleanup], [2.1.0], [enrico.m.crisostomo@gmail.com])`
 
 ## Code Changes v2.1.0
 
