@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install dependencies on Ubuntu
+    - name: Install dependencies on macOS
       run: |
         brew update
         brew install autoconf automake autopoint gettext git make
