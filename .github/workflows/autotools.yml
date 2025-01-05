@@ -16,7 +16,7 @@ jobs:
     - name: Install dependencies on macOS
       run: |
         brew update
-        brew install autoconf automake autopoint gettext git make
+        brew install autoconf automake gettext git make
 
     - name: Run autogen
       run: ./autogen.sh
