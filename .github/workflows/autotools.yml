@@ -1,0 +1,50 @@
+name: C/C++ CI with Autotools
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y autoconf automake autopoint gettext git make
+
+    - name: Run autogen
+      run: ./autogen.sh
+
+    - name: Configure
+      run: |
+        ./configure
+
+    - name: Build
+      run: make
+
+    - name: Run checks
+      run: make check
+
+    - name: Set commit status
+      uses: actions/github-script@v4
+      with:
+        script: |
+          github.repos.createCommitStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            sha: context.sha,
+            state: 'success',
+            context: 'autotools',
+            description: 'Autotools build successful',
+            target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+          })
