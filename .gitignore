@@ -15,6 +15,9 @@ Makefile
 /stamp-h1
 /config.*
 /config/*
+/test-suite.log
+/tests/*.log
+/tests/*.trs
 
 # build output
 

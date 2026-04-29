@@ -130,6 +130,12 @@ interface, `dialog` is required.
 Testing locally
 ---------------
 
+No dedicated physical Time Machine disk is required for local testing.  The
+commands below create a sparsebundle disk image stored on the host drive and
+mount it as a separate Time Machine destination.  Do not try to use the live
+system volume itself as the Time Machine destination; local Time Machine
+snapshots use different `tmutil` verbs and are not what this script deletes.
+
 To create an HFS+ disk image:
 
     $ hdiutil create -size 100g \

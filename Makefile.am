@@ -31,6 +31,8 @@ ACLOCAL_AMFLAGS     = -I m4
 dist_doc_DATA       = README.md AUTHORS LICENSE NEWS
 bin_SCRIPTS         = src/tm-cleanup.sh
 dist_man_MANS       = man/tm-cleanup.sh.1
+TESTS               = tests/tm-cleanup-tests.zsh
+EXTRA_DIST          = src/tm-cleanup.sh.in man/tm-cleanup.sh.1.in $(TESTS)
 
 dist-hook:
 # The recipe cannot assume a file in $(distdir) is writable.

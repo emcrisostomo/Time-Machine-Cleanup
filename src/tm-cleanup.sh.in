@@ -37,8 +37,9 @@ typeset -i FORCE_EXECUTION=0
 # Execution modes
 #   - 0: number of days
 #   - 1: number of backups
-# Time Machine directory
+# Time Machine directory and backup mount point
 typeset TM_MACHINE_DIR
+typeset TM_BACKUP_MOUNT_POINT
 typeset -ri MODE_DAYS=1
 typeset -ri MODE_BACKUPS=2
 typeset -ri MODE_SHOW_BACKUPS=4
@@ -146,15 +147,33 @@ tm_validate_backup_dates()
   # If it has, let's not proceed.
   for i in ${TM_BACKUPS}
   do
-    local TM_DATE=$(basename $i)
+    local TM_DATE=$(tm_backup_timestamp ${i})
 
     if [[ ! ${TM_DATE} =~ "^[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}$" ]]
     then
-      >&2 print -- "Unexpected snapshot name: ${TM_DATE}."
+      >&2 print -- "Unexpected snapshot name: $(basename ${i})."
       >&2 print -- "Aborting."
       exit 8
     fi
   done
+}
+
+tm_backup_timestamp()
+{
+  local TM_DATE=$(basename ${1})
+  print -- ${TM_DATE%.backup}
+}
+
+tm_machine_dir_to_mount_point()
+{
+  local TM_DIR=${1}
+
+  if [[ ${TM_DIR} == */Backups.backupdb/* ]]
+  then
+    print -- ${TM_DIR%%/Backups.backupdb/*}
+  else
+    print -- ${TM_DIR}
+  fi
 }
 
 process_by_days()
@@ -172,7 +191,7 @@ process_by_days()
 
   for i in ${TM_BACKUPS}
   do
-    local TM_DATE=$(basename $i)
+    local TM_DATE=$(tm_backup_timestamp ${i})
 
     if [[ ${THRESHOLD_DATE} > ${TM_DATE} ]]
     then
@@ -182,7 +201,7 @@ process_by_days()
 
         if (( ${DRY_RUN} == 0 ))
         then
-          tmutil delete -t ${i} -d ${TM_MACHINE_DIR}
+          tmutil delete -d ${TM_BACKUP_MOUNT_POINT} -t ${TM_DATE}
         fi
       else
         print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
@@ -207,16 +226,12 @@ process_by_backups()
 
   for i in $(seq 1 ${LAST_IDX})
   do
-    if [[ ${i} != ${TM_BACKUPS[-1]} ]]
-    then
-      print -- "${TM_BACKUPS[i]:t} will be deleted."
+    local TM_DATE=$(tm_backup_timestamp ${TM_BACKUPS[${i}]})
+    print -- "${TM_DATE} will be deleted."
 
-      if (( ${DRY_RUN} == 0 ))
-      then
-        tmutil delete -t ${TM_BACKUPS[i]} -d ${TM_MACHINE_DIR}
-      fi
-    else
-      print -- "${TM_DATE} will not be deleted because it is the latest available Time Machine snapshot."
+    if (( ${DRY_RUN} == 0 ))
+    then
+      tmutil delete -d ${TM_BACKUP_MOUNT_POINT} -t ${TM_DATE}
     fi
   done
 }
@@ -230,6 +245,7 @@ tm_health_checks()
     echo "failed to set the machine directory for tmutil"
     exit 3
   fi
+  TM_BACKUP_MOUNT_POINT=$(tm_machine_dir_to_mount_point ${TM_MACHINE_DIR})
 
   (( $# == 0 )) || {
     >&2 print -- "No arguments are allowed."
@@ -278,9 +294,10 @@ tm_load_backups()
   fi
 
   # Get the full list of backups from tmutil
-  if TMUTIL_OUTPUT=$(tmutil listbackups 2> ${TM_ERR_TEMP_FILE})
+  if TMUTIL_OUTPUT=$(tmutil listbackups -t 2> ${TM_ERR_TEMP_FILE})
   then
-    TM_BACKUPS=( "${(ps:\n:)$(tmutil listbackups -t)}" )
+    TM_BACKUPS=( "${(ps:\n:)${TMUTIL_OUTPUT}}" )
+    TM_BACKUPS=( ${TM_BACKUPS:#} )
 
     # We are sorting the output of tmutil listbackups because its documentation
     # states nowhere that the output is sorted in any way.
@@ -342,8 +359,10 @@ tm_delete_backups()
   {
     for ((i = 1 ; i <= ${#backup_idx_to_delete} ; i += 1))
     do
-      # TODO: needs to be updated for macOS Sonoma 
-      if ! tmutil delete -t ${TM_BACKUPS[${i}]} -d ${TM_MACHINE_DIR} 2> ${TM_ERR_TEMP_FILE}
+      local TM_BACKUP_IDX=${backup_idx_to_delete[${i}]}
+      local TM_DATE=$(tm_backup_timestamp ${TM_BACKUPS[${TM_BACKUP_IDX}]})
+
+      if ! tmutil delete -d ${TM_BACKUP_MOUNT_POINT} -t ${TM_DATE} 2> ${TM_ERR_TEMP_FILE}
       then
         tm_show_last_error
       fi
@@ -459,16 +478,24 @@ tm_start_dialog()
   done
 }
 
+tm_main()
+{
+  parse_opts $* && shift ${ARGS_PROCESSED}
+
+  tm_health_checks
+
+  if (( ${EXECUTION_MODE} == ${MODE_UNKNOWN} ))
+  then
+    tm_start_dialog
+  else
+    tm_start_batch
+  fi
+}
+
 # Main
-parse_opts $* && shift ${ARGS_PROCESSED}
-
-tm_health_checks
-
-if (( ${EXECUTION_MODE} == ${MODE_UNKNOWN} ))
+if [[ -z ${TM_CLEANUP_TESTING:-} ]]
 then
-  tm_start_dialog
-else
-  tm_start_batch
+  tm_main $*
 fi
 
 # Local variables:
